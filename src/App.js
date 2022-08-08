@@ -1,10 +1,11 @@
 import './App.css';
 import AntdToForm from "./components/AntdToForm";
+import Example from "./page/Example/Example";
 
 function App() {
   return (
     <div className="App">
-      <AntdToForm />
+      <Example />
     </div>
   );
 }
