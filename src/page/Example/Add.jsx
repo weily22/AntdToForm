@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Modal, Form, Row, Col, Input, DatePicker, message, Switch} from 'antd';
-import day from 'day';
-import AntdToForm from "../../components/AntdToForm";
+import {Modal, Form, Row, Col, Input, DatePicker, message, Switch, Button} from 'antd';
+import dayjs from 'dayjs';
+import AntdToForm, { useFormData } from "../../components/AntdToForm";
 import SelectComp from "../../components/SelectComp/SelectComp";
-import { getUserList } from "./service";
+import {getUserList} from "./service";
 
 const projectStatusOptions = [
   { label: '未开始', value: '0' },
@@ -13,9 +13,24 @@ const projectStatusOptions = [
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 const Add = (props = {}) => {
-  const myForm = useRef();
+  const [form] = Form.useForm();
   const { editData = {}, onOk = () => {}, onCancel = () => {} } = props;
   const [options, setOptions] = useState([]);
+  const { submit, reset } = useFormData({
+    form,
+    valuePropsFuncMap: {
+      startDate: (v) => ({ startDate: v ? dayjs(v).format("YYYY-MM-DD hh:mm:ss") : null }),
+      endDate: (v) => {
+        return ({
+          endDateStart: dayjs(v[0]).format("YYYY-MM-DD hh:mm:ss"),
+          endDateEnd: dayjs(v[1]).format("YYYY-MM-DD hh:mm:ss"),
+        })
+      },
+      isShow: (v) => ({
+        isShow: v ? 'Y' : 'N',
+      })
+    }
+  })
 
   const onSearchHandle = async (v) => {
     const rst = await getUserList(v);
@@ -23,14 +38,12 @@ const Add = (props = {}) => {
       setOptions(rst.result)
     }
   }
-  const onSubmit = () => {
-    onOk();
+  const onSubmit = async () => {
+    const values = await submit();
+    onOk(values);
   }
   const cancel = () => {
     onCancel();
-  }
-  const onFinish = (v) => {
-    console.log(v)
   }
 
   const itemsData = [
@@ -76,9 +89,9 @@ const Add = (props = {}) => {
       label: '结束时间段',
       required: true,
       comp: <RangePicker />,
-      valueProps: (value) => ({
-        endDateStart: day(value[0]).format("YYYY-MM-DD hh:mm:ss"),
-        endDateEnd: day(value[1]).format("YYYY-MM-DD hh:mm:ss"),
+      valuePropsFunc: (value) => ({
+        endDateStart: dayjs(value[0]).format("YYYY-MM-DD hh:mm:ss"),
+        endDateEnd: dayjs(value[1]).format("YYYY-MM-DD hh:mm:ss"),
       })
     },
     {
@@ -105,9 +118,8 @@ const Add = (props = {}) => {
       forceRender
     >
       <AntdToForm
-        ref={myForm}
+        form={form}
         items={itemsData}
-        onFinish={onFinish}
         colSpan={12}
         rowGutter={20}
       />

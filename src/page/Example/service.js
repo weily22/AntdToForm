@@ -22,12 +22,10 @@ export const getUserList = (name) => {
 
 export const addProject = (data) => {
   console.log("添加项目： ", data)
-  setTimeout(() => {
-    return new Promise((resolve, reject) => {
-      resolve({
-        code: 0,
-        result: 'ok'
-      })
+  return new Promise((resolve, reject) => {
+    resolve({
+      code: 0,
+      result: 'ok'
     })
-  }, Math.random()*5000 + 1000)
+  })
 }

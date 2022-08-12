@@ -4,22 +4,30 @@ import {useFormData} from "./useFormData";
 
 const { Item } = Form;
 const AntdToForm = (props) => {
-  const [form] = Form.useForm();
-  const [valueMap, setValueMap] = useState({});
-  const { onFinish = () => {}, rowGutter = 10, colSpan = 24, items = [] } = props;
+  const valueMap = {};
+  // const [valueMap, setValueMap] = useState({});
+  const { form, onFinish = () => {}, rowGutter = 10, colSpan = 24, items = [], formProps = {} } = props;
   const {
     fetchData = () => {},
   } = props;
+
+  const bindValuePropsFunc = (name, func) => {
+    if (func instanceof Function) {
+      Object.assign(valueMap, { [name]: func });
+    }
+  }
+
 
   const getItems = (itemsData = []) => {
     if (!(itemsData instanceof Array)) {
       console.error("参数类型错误，请传入数组！")
     }
+
     if (!itemsData.length) return null;
-    // let map = {};
-    return itemsData.map(({ name, label, comp, rules, required, itemProps = {}, valueProps = {} }, i) => {
+
+    return itemsData.map(({ name, label, comp, rules, required, itemProps = {}, valuePropsFunc }, i) => {
       const formItemProps = { name, label, rules, ...itemProps }
-      Object.assign(valueMap, valueProps);
+      if (valuePropsFunc) bindValuePropsFunc(name, valuePropsFunc);
       if (!!required && !rules) formItemProps.rules = [{required: true}];
       return <Col span={colSpan} key={i}>
         <Item {...formItemProps}>
@@ -27,8 +35,6 @@ const AntdToForm = (props) => {
         </Item>
       </Col>;
     })
-    // setValueMap(map);
-    return items;
   }
 
   const onSubmit = () => {
@@ -39,7 +45,7 @@ const AntdToForm = (props) => {
   }
 
   return (
-    <Form form={form}>
+    <Form form={form} {...formProps}>
       <Row gutter={rowGutter}>{getItems(items)}</Row>
     </Form>
   )
