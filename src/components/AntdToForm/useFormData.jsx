@@ -24,7 +24,6 @@ const useFormData = (options = {}) => {
         if (fields[key]) {
           delete newValues[key];
           newValues = Object.assign(newValues, valuePropsFuncMap[key](fields[key]))
-          // newValues[key] = valuePropsFuncMap[key](fields[key]);
         }
       })
       return newValues;
